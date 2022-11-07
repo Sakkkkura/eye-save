@@ -191,19 +191,63 @@
         <Grid
             Grid.Row="2"
             Background="{StaticResource ColorSecondary}">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-
+          
             <Button
-                Grid.Column="0"
                 Margin="8"
                 Background="{StaticResource ColorPrimary}"
                 Content="Добавить агента"
-                BorderBrush="{StaticResource ColorAccent}"/>
+                Width="190"
+                Height="30"
+                BorderBrush="{StaticResource ColorAccent}"
+                HorizontalAlignment="Left"/>
+
+            <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Center">
+                
+                <Button
+                    x:Name="btnPreviousPage"
+                    Content="&lt;"
+                    Padding="8"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="btnPreviousPage_Click"/>
+
+                <ListView
+                    ItemsSource="{Binding Pages,
+                    UpdateSourceTrigger=PropertyChanged}"
+                    SelectedItem="{Binding SelectedPage,
+                    UpdateSourceTrigger=PropertyChanged}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,0,6,0">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel
+                                Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                Name="tbNum"
+                                Padding="8"
+                                Text="{Binding pageNum}"
+                                Margin="-5"/>
+                            <DataTemplate.Triggers/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <Button
+                    x:Name="btnNextPage"
+                    Content="&gt;"
+                    Padding="8"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="btnNextPage_Click"/>
+
+            </StackPanel>
 
         </Grid>
         

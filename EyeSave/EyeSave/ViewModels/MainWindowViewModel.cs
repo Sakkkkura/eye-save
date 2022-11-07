@@ -10,19 +10,13 @@ namespace EyeSave.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public List<Agent> Agents { get; set; }
+        private List<Agent> Agents { get; set; }
         private List<Agent> _displayingAgents;
-
-        
 
         private Agent _selectedAgent;
         private string _selectedSort;
         private string _selectedFilter;
         private string _searchingString;
-
-        
-
-
 
         public List<Agent> DisplayingAgents
         {
@@ -34,22 +28,22 @@ namespace EyeSave.ViewModels
         {
             get => _selectedAgent;
             set => Set(ref _selectedAgent, value, nameof(SelectedAgent));
-        }  
+        }
         public string SelectedSort
         {
             get => _selectedSort;
             set
             {
-                Set(ref _selectedSort, value, nameof(SelectedSort));
+               if(Set(ref _selectedSort, value, nameof(SelectedSort)));
                 DisplayAgents();
             }
-        } 
+        }
         public string SelectedFilter
         {
             get => _selectedFilter;
             set
             {
-                Set(ref _selectedFilter, value, nameof(SelectedFilter));
+                if(Set(ref _selectedFilter, value, nameof(SelectedFilter)));
                 DisplayAgents();
             }
         }
@@ -58,7 +52,7 @@ namespace EyeSave.ViewModels
             get => _searchingString;
             set
             {
-                Set(ref _searchingString, value, nameof(SearchingString));
+                if(Set(ref _searchingString, value, nameof(SearchingString)));
                 DisplayAgents();
             }
         }
@@ -80,6 +74,40 @@ namespace EyeSave.ViewModels
             "Все типы"
         };
 
+        public record Page(int pageNum);
+        private const int PageSize = 10;
+        private List<Page> _pages;
+        private Page _selectedPage;
+
+        public List<Page> Pages
+        {
+            get => _pages;
+            set
+            {
+                Set(ref _pages, value, nameof(Pages));
+            }
+        } 
+
+        public Page SelectedPage
+        {
+            get => _selectedPage;
+            set
+            {
+                if (Set(ref _selectedPage, value, nameof(SelectedPage)))
+                    DisplayAgents();
+            }
+        }
+
+        private List<Page> GetPages(int itemCount)
+        {
+            double pageCount = Math.Ceiling((double)itemCount / PageSize);
+            var list = new List<Page>((int)pageCount);
+            list.Add(new Page(1));
+            for (int i = 1; i < pageCount; i++)
+                list.Add(new Page(i + 1));
+            return list;
+        }
+        
         public MainWindowViewModel()
         {
             using(ApplicationDbContex context = new ApplicationDbContex())
@@ -94,11 +122,23 @@ namespace EyeSave.ViewModels
                 FilterList.AddRange(context.AgentTypes.Select(at => at.Title));
             }
             _displayingAgents = Agents;
+            _selectedFilter = FilterList[0];
+            _selectedSort = SortList[0];
+            _pages = GetPages(_displayingAgents.Count);
+            _selectedPage = _pages[0];
         }
 
         private void DisplayAgents()
         {
-            DisplayingAgents = Sort(Search(Filter(Agents)));
+            var list = Sort(Search(Filter(Agents))).ToList();
+            Pages = GetPages(list.Count);
+            var pageNum = SelectedPage == null
+                ? 1
+                : SelectedPage.pageNum;
+
+            DisplayingAgents = Paging(list, pageNum, PageSize).ToList();
+
+            SelectedPage ??= Pages[0];
         }
 
 
@@ -133,17 +173,15 @@ namespace EyeSave.ViewModels
                 return incList;
 
             else
-                return incList.Where(a => a.AgentType.Title == SelectedFilter).ToList();
-
-            
+                return incList.Where(a => a.AgentType.Title == SelectedFilter).ToList();            
         }
 
+        private IEnumerable<Agent> Paging(IEnumerable<Agent> agents, int pageNum, int pageSize)
+        {
+            if (pageNum > 0)
+                agents = agents.Skip((pageNum - 1) * pageSize);
 
-
-
-            
-
-
-
+            return agents.Take(pageSize);
+        }
     }
 }

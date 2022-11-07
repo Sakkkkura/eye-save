@@ -152,7 +152,10 @@
 
                 <TextBox
                     Grid.Row="1"
-                    Margin="8"/>
+                    Margin="8"
+                    VerticalContentAlignment="Center"
+                    Text="{Binding SearchValue,
+                    UpdateSourceTrigger=PropertyChanged}"/>
 
                 <ComboBox
                     Grid.Row="2"
@@ -174,6 +177,7 @@
                         Background="LightGreen"/>
 
                     <Button
+                        Name="btnRemove"
                         Grid.Column="1"
                         Content="Удалить"
                         Margin="8"

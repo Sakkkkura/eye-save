@@ -29,5 +29,11 @@ namespace EyeSave.Views
             _viewModel = new AgentViewModel(agentId);
             DataContext = _viewModel;
         }
+
+        private void btnRemove_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.DeleteSelectedProductSale();
+        }
+
     }
 }
